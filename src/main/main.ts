@@ -1,6 +1,9 @@
 import { app, BrowserWindow } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 let win: BrowserWindow | null;
 
@@ -40,6 +43,8 @@ const createWindow = async () => {
             win!.webContents.openDevTools();
         });
     }
+
+    win.maximize();
 
     win.on('closed', () => {
         win = null;
