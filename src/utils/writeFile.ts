@@ -8,7 +8,7 @@ export function writeFile(mp3File: Mp3File, metadata: SongDetailResult) {
             mp3File.path,
             {
                 artist: metadata.artists,
-                title: `${metadata.title}${metadata.remix ? `- ${metadata.remix}` : ''}`,
+                title: `${metadata.title}${metadata.remix ? ` (${metadata.remix})` : ''}`,
                 genre: metadata.genre,
                 date: metadata.releaseDate,
                 publisher: metadata.labels,

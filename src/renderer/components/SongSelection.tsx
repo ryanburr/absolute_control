@@ -32,7 +32,7 @@ import AbsCardHeader from './abs/AbsCardHeader';
 
 interface SongSelectionProps {
     file: Mp3File | undefined;
-    onSync?: (file: Mp3File) => void;
+    onSync?: (result: SearchResult) => Promise<void>;
     query: string;
     onQueryChange: (query: string) => void;
 }
@@ -115,13 +115,10 @@ const SongSelection = (props: SongSelectionProps) => {
     }
 
     async function syncInfo(result: SearchResult): Promise<void> {
-        const detail = await beatportClient.get(result.detailUrl);
-        if (file) {
-            await writeFile(file, detail);
-            moveToNeedsSort(file);
-            if (onSync) {
-                onSync(file);
-            }
+        if (onSync) {
+            setLoading(true);
+            await onSync(result);
+            setLoading(false);
         }
     }
 };

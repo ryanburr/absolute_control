@@ -8,6 +8,10 @@ import { Mp3File } from '../../contracts/Mp3File';
 import SongSelection from '../components/SongSelection';
 import { needsDefinitionPath } from '../../constants';
 import { getFileName } from '../../utils/getFileName';
+import { SearchResult } from '../../contracts/SearchResults';
+import { beatportClient } from '../../clients/beatport';
+import { writeFile } from '../../utils/writeFile';
+import { moveToNeedsSort } from '../../utils/moveToNeedsSort';
 
 const useStyles = makeStyles(
     createStyles({
@@ -35,11 +39,25 @@ const NeedsDefinition = () => {
                     />
                 </Grid>
                 <Grid item xs={6}>
-                    <SongSelection file={selectedFile} query={query} onQueryChange={setQuery} />
+                    <SongSelection
+                        file={selectedFile}
+                        query={query}
+                        onQueryChange={setQuery}
+                        onSync={syncFile}
+                    />
                 </Grid>
             </Grid>
         </>
     );
+
+    async function syncFile(result: SearchResult) {
+        if (selectedFile) {
+            const detail = await beatportClient.get(result.detailUrl);
+            await writeFile(selectedFile, detail);
+            moveToNeedsSort(selectedFile);
+            setSelectedFile(undefined);
+        }
+    }
 
     function loadSong(file: Mp3File) {
         setSelectedFile(file);
