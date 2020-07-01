@@ -2,7 +2,7 @@ import * as path from 'path';
 import { hot } from 'react-hot-loader/root';
 import * as React from 'react';
 
-import { Typography, makeStyles, createStyles } from '@material-ui/core';
+import { Typography, makeStyles, createStyles, ListItem, ListItemText } from '@material-ui/core';
 import FileList from '../components/FileList';
 import { Mp3File } from '../../contracts/Mp3File';
 import SongSelection from '../components/SongSelection';
@@ -28,6 +28,18 @@ const NeedsSorting = () => {
                     path={needsSortingPath}
                     selectedFile={selectedFile}
                     onSelect={loadSong}
+                    itemTemplate={({ file }) => (
+                        <ListItem>
+                            <ListItemText
+                                primary={`${file.mp3.common.artists} - ${file.mp3.common.title}`}
+                                secondary={`${file.mp3.common.genre} - ${
+                                    file.mp3.common.date
+                                        ? new Date(file.mp3.common.date).toLocaleDateString()
+                                        : ''
+                                }`}
+                            />
+                        </ListItem>
+                    )}
                 />
             </section>
         </>

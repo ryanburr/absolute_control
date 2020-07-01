@@ -25,17 +25,20 @@ interface FileListProps {
     path: string;
     selectedFile: Mp3File | undefined;
     onSelect: (file: Mp3File) => void;
+    itemTemplate?: (props: { file: Mp3File }) => JSX.Element;
 }
 
 const FileList = (props: FileListProps) => {
-    const { selectedFile, path, onSelect, title } = props;
+    const { itemTemplate: ItemTemplate, selectedFile, path, onSelect, title } = props;
 
     const [isLoading, setLoading] = React.useState(false);
     const [files, setFiles] = React.useState<Mp3File[]>([]);
 
     React.useEffect(() => {
-        refreshFiles();
-    }, []);
+        if (!selectedFile) {
+            refreshFiles();
+        }
+    }, [selectedFile]);
 
     return (
         <AbsCard>
@@ -53,16 +56,20 @@ const FileList = (props: FileListProps) => {
             {isLoading ? <LinearProgress variant="indeterminate" /> : <Divider />}
             {files.length > 0 ? (
                 <AbsList>
-                    {files.map(file => (
-                        <ListItem
-                            button
-                            key={getFileName(file.path)}
-                            onClick={() => onSelect(file)}
-                            selected={file.path === selectedFile?.path}
-                        >
-                            <ListItemText>{getFileName(file.path)}</ListItemText>
-                        </ListItem>
-                    ))}
+                    {files.map(file =>
+                        !ItemTemplate ? (
+                            <ListItem
+                                button
+                                key={getFileName(file.path)}
+                                onClick={() => onSelect(file)}
+                                selected={file.path === selectedFile?.path}
+                            >
+                                <ListItemText>{getFileName(file.path)}</ListItemText>
+                            </ListItem>
+                        ) : (
+                            <ItemTemplate key={file.path} file={file} />
+                        )
+                    )}
                 </AbsList>
             ) : (
                 <Box p={2}>
