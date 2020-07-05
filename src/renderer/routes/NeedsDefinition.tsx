@@ -15,8 +15,12 @@ import { moveToNeedsSort } from '../../utils/moveToNeedsSort';
 
 const useStyles = makeStyles(
     createStyles({
-        row: {
-            display: 'flex'
+        sticky: {
+            position: 'sticky',
+            top: 10
+        },
+        relative: {
+            position: 'relative'
         }
     })
 );
@@ -38,8 +42,9 @@ const NeedsDefinition = () => {
                         onSelect={loadSong}
                     />
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={6} className={classes.relative}>
                     <SongSelection
+                        className={classes.sticky}
                         file={selectedFile}
                         query={query}
                         onQueryChange={setQuery}

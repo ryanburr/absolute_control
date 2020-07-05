@@ -14,7 +14,9 @@ import {
     Divider,
     LinearProgress,
     Box,
-    Tooltip
+    Tooltip,
+    Input,
+    TextField
 } from '@material-ui/core';
 import SyncIcon from '@material-ui/icons/Sync';
 
@@ -31,6 +33,7 @@ import AbsCard from './abs/AbsCard';
 import AbsCardHeader from './abs/AbsCardHeader';
 
 interface SongSelectionProps {
+    className?: string;
     file: Mp3File | undefined;
     onSync?: (result: SearchResult) => Promise<void>;
     query: string;
@@ -40,9 +43,10 @@ interface SongSelectionProps {
 const beatportUrl = 'https://beatport.com';
 
 const SongSelection = (props: SongSelectionProps) => {
-    const { file, onSync, query, onQueryChange } = props;
+    const { className, file, onSync, query, onQueryChange } = props;
 
     const [isLoading, setLoading] = React.useState<boolean>(false);
+
     const [selectedResult, setSelectedResult] = React.useState<SearchResult>();
     const [selectedIndex, setSelectedIndex] = React.useState<number>();
     const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
@@ -63,8 +67,18 @@ const SongSelection = (props: SongSelectionProps) => {
     }, [query]);
 
     return (
-        <AbsCard>
+        <AbsCard className={className}>
             <AbsCardHeader title="Search Results" subheader={beatportUrl} />
+            <Divider />
+            <Box p={2}>
+                <TextField
+                    variant="outlined"
+                    label="Query"
+                    value={query ?? ''}
+                    onChange={handleChangeQuery}
+                    fullWidth
+                />
+            </Box>
             {isLoading ? <LinearProgress variant="indeterminate" /> : <Divider />}
             {searchResults.length > 0 ? (
                 <AbsList>
@@ -104,6 +118,10 @@ const SongSelection = (props: SongSelectionProps) => {
             )}
         </AbsCard>
     );
+
+    function handleChangeQuery(e: React.ChangeEvent<HTMLInputElement>) {
+        onQueryChange(e.target.value);
+    }
 
     function openInBeatport(result: SearchResult) {
         shell.openExternal(beatportUrl + result.detailUrl);
