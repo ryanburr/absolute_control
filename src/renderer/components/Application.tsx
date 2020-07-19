@@ -11,6 +11,7 @@ import NeedsSorting from '../routes/NeedsSorting';
 import Genres from '../routes/Genres';
 import Search from '../routes/Search';
 import SpotifyProvider from '../../contexts/spotify-auth/SpotifyProvider';
+import AbsAlertProvider from './abs/alert/AbsAlertProvider';
 
 const absoluteTheme = createMuiTheme();
 
@@ -19,29 +20,31 @@ const Application = () => {
 
     return (
         <ThemeProvider theme={absoluteTheme}>
-            <div>
-                <Typography variant="h1">Absolute Control!</Typography>
-                <AbsTabs value={tab} onChange={handleChange}>
-                    <AbsTab label="Search" />
-                    <AbsTab label="Need to Define" />
-                    <AbsTab label="Need to Sort" />
-                    <AbsTab label="Genres" />
-                </AbsTabs>
-                <AbsTabPanel value={tab} index={0}>
-                    <SpotifyProvider>
-                        <Search />
-                    </SpotifyProvider>
-                </AbsTabPanel>
-                <AbsTabPanel value={tab} index={1}>
-                    <NeedsDefinition />
-                </AbsTabPanel>
-                <AbsTabPanel value={tab} index={2}>
-                    <NeedsSorting />
-                </AbsTabPanel>
-                <AbsTabPanel value={tab} index={3}>
-                    <Genres />
-                </AbsTabPanel>
-            </div>
+            <AbsAlertProvider>
+                <div>
+                    <Typography variant="h1">Absolute Control!</Typography>
+                    <AbsTabs value={tab} onChange={handleChange}>
+                        <AbsTab label="Search" />
+                        <AbsTab label="Need to Define" />
+                        <AbsTab label="Need to Sort" />
+                        <AbsTab label="Genres" />
+                    </AbsTabs>
+                    <AbsTabPanel value={tab} index={0}>
+                        <SpotifyProvider>
+                            <Search />
+                        </SpotifyProvider>
+                    </AbsTabPanel>
+                    <AbsTabPanel value={tab} index={1}>
+                        <NeedsDefinition />
+                    </AbsTabPanel>
+                    <AbsTabPanel value={tab} index={2}>
+                        <NeedsSorting />
+                    </AbsTabPanel>
+                    <AbsTabPanel value={tab} index={3}>
+                        <Genres />
+                    </AbsTabPanel>
+                </div>
+            </AbsAlertProvider>
         </ThemeProvider>
     );
 

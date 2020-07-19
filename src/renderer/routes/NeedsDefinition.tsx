@@ -12,6 +12,7 @@ import { BeatportSearchResult } from '../../contracts/BeatportSearchResults';
 import { beatportClient } from '../../clients/beatport';
 import { writeFile } from '../../utils/writeFile';
 import { moveToNeedsSort } from '../../utils/moveToNeedsSort';
+import { useAlert } from '../components/abs/alert/useAlert';
 
 const useStyles = makeStyles(
     createStyles({
@@ -27,8 +28,9 @@ const useStyles = makeStyles(
 
 const NeedsDefinition = () => {
     const classes = useStyles();
-    const [selectedFile, setSelectedFile] = React.useState<Mp3File>();
+    const alert = useAlert();
 
+    const [selectedFile, setSelectedFile] = React.useState<Mp3File>();
     const [query, setQuery] = React.useState('');
 
     return (
@@ -56,11 +58,17 @@ const NeedsDefinition = () => {
     );
 
     async function syncFile(result: BeatportSearchResult) {
-        if (selectedFile) {
-            const detail = await beatportClient.get(result.detailUrl);
-            await writeFile(selectedFile, detail);
-            moveToNeedsSort(selectedFile);
-            setSelectedFile(undefined);
+        try {
+            if (selectedFile) {
+                const detail = await beatportClient.get(result.detailUrl);
+                await writeFile(selectedFile, detail);
+                moveToNeedsSort(selectedFile);
+                setSelectedFile(undefined);
+
+                alert.success(`${selectedFile.mp3.common.title} synced with Beatport data`);
+            }
+        } catch (err) {
+            alert.error(err.message);
         }
     }
 

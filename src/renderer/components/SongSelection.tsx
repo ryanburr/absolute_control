@@ -8,34 +8,29 @@ import {
     ListItem,
     ListItemText,
     Typography,
-    CircularProgress,
     ListItemSecondaryAction,
     IconButton,
     Divider,
     LinearProgress,
     Box,
     Tooltip,
-    Input,
     TextField
 } from '@material-ui/core';
 import SyncIcon from '@material-ui/icons/Sync';
+import SearchIcon from '@material-ui/icons/Search';
 
-import { write } from 'fs';
-import { readFiles } from '../../utils/readFiles';
 import { Mp3File } from '../../contracts/Mp3File';
-import { getFileName } from '../../utils/getFileName';
 import { beatportClient } from '../../clients/beatport';
-import { SearchResult } from '../../contracts/SearchResults';
+import { BeatportSearchResult } from '../../contracts/BeatportSearchResults';
 import AbsList from './abs/AbsList';
-import { writeFile } from '../../utils/writeFile';
-import { moveToNeedsSort } from '../../utils/moveToNeedsSort';
 import AbsCard from './abs/AbsCard';
 import AbsCardHeader from './abs/AbsCardHeader';
+import { useAlert } from './abs/alert/useAlert';
 
 interface SongSelectionProps {
     className?: string;
     file: Mp3File | undefined;
-    onSync?: (result: SearchResult) => Promise<void>;
+    onSync?: (result: BeatportSearchResult) => Promise<void>;
     query: string;
     onQueryChange: (query: string) => void;
 }
@@ -43,28 +38,15 @@ interface SongSelectionProps {
 const beatportUrl = 'https://beatport.com';
 
 const SongSelection = (props: SongSelectionProps) => {
-    const { className, file, onSync, query, onQueryChange } = props;
+    const { className, file, onSync, query = '', onQueryChange } = props;
+
+    const alert = useAlert();
 
     const [isLoading, setLoading] = React.useState<boolean>(false);
 
-    const [selectedResult, setSelectedResult] = React.useState<SearchResult>();
+    const [, setSelectedResult] = React.useState<BeatportSearchResult>();
     const [selectedIndex, setSelectedIndex] = React.useState<number>();
-    const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
-
-    React.useEffect(() => {
-        if (query) {
-            executeAsync();
-        }
-        async function executeAsync() {
-            try {
-                setLoading(true);
-                setSearchResults(await beatportClient.search(query));
-            } catch (err) {
-                console.error(err);
-            }
-            setLoading(false);
-        }
-    }, [query]);
+    const [searchResults, setSearchResults] = React.useState<BeatportSearchResult[]>([]);
 
     return (
         <AbsCard className={className}>
@@ -74,8 +56,16 @@ const SongSelection = (props: SongSelectionProps) => {
                 <TextField
                     variant="outlined"
                     label="Query"
-                    value={query ?? ''}
+                    value={query}
                     onChange={handleChangeQuery}
+                    onKeyDown={handleEnter}
+                    InputProps={{
+                        endAdornment: (
+                            <IconButton color="secondary" onClick={search}>
+                                <SearchIcon />
+                            </IconButton>
+                        )
+                    }}
                     fullWidth
                 />
             </Box>
@@ -119,20 +109,35 @@ const SongSelection = (props: SongSelectionProps) => {
         </AbsCard>
     );
 
+    function handleEnter(e: React.KeyboardEvent) {
+        if (e.key === 'Enter') {
+            search();
+        }
+    }
+
+    async function search() {
+        if (!query) {
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setSearchResults(await beatportClient.search(query));
+        } catch (err) {
+            alert.error(err.message);
+        }
+        setLoading(false);
+    }
+
     function handleChangeQuery(e: React.ChangeEvent<HTMLInputElement>) {
         onQueryChange(e.target.value);
     }
 
-    function openInBeatport(result: SearchResult) {
+    function openInBeatport(result: BeatportSearchResult) {
         shell.openExternal(beatportUrl + result.detailUrl);
     }
 
-    function setSelection(result: SearchResult, index: number) {
-        setSelectedResult(result);
-        setSelectedIndex(index);
-    }
-
-    async function syncInfo(result: SearchResult): Promise<void> {
+    async function syncInfo(result: BeatportSearchResult): Promise<void> {
         if (onSync) {
             setLoading(true);
             await onSync(result);

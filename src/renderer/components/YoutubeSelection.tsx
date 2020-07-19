@@ -24,6 +24,7 @@ import { YoutubeSearchResult } from '../../contracts/YoutubeSearchResult';
 import AbsList from './abs/AbsList';
 import AbsCard from './abs/AbsCard';
 import AbsCardHeader from './abs/AbsCardHeader';
+import { useAlert } from './abs/alert/useAlert';
 
 interface YoutubeSelectionProps {
     className?: string;
@@ -37,6 +38,8 @@ const youtubeUrl = 'https://youtube.com';
 
 const YoutubeSelection = (props: YoutubeSelectionProps) => {
     const { className, track, onDownload, query = '', onQueryChange } = props;
+
+    const alert = useAlert();
 
     const [isLoading, setLoading] = React.useState<boolean>(false);
 
@@ -54,6 +57,7 @@ const YoutubeSelection = (props: YoutubeSelectionProps) => {
                     label="Query"
                     value={query}
                     onChange={handleChangeQuery}
+                    onKeyDown={handleEnter}
                     InputProps={{
                         endAdornment: (
                             <IconButton color="secondary" onClick={search}>
@@ -99,6 +103,12 @@ const YoutubeSelection = (props: YoutubeSelectionProps) => {
         </AbsCard>
     );
 
+    function handleEnter(e: React.KeyboardEvent) {
+        if (e.key === 'Enter') {
+            search();
+        }
+    }
+
     async function search() {
         if (!query) {
             return;
@@ -108,7 +118,7 @@ const YoutubeSelection = (props: YoutubeSelectionProps) => {
             setLoading(true);
             setSearchResults(await youtubeClient.search(query));
         } catch (err) {
-            console.error(err);
+            alert.error(err.message);
         }
         setLoading(false);
     }

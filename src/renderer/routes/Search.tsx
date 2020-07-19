@@ -6,6 +6,7 @@ import SpotifyLikedSongs from '../components/spotify/SpotifyLikedSongs';
 import YoutubeSelection from '../components/YoutubeSelection';
 import { YoutubeSearchResult } from '../../contracts/YoutubeSearchResult';
 import { youtubeClient } from '../../clients/youtube';
+import { useAlert } from '../components/abs/alert/useAlert';
 
 const useStyles = makeStyles(
     createStyles({
@@ -21,8 +22,9 @@ const useStyles = makeStyles(
 
 const Search = () => {
     const classes = useStyles();
-    const [selectedTrack, setSelectedTrack] = React.useState<SpotifyApi.SavedTrackObject>();
+    const alert = useAlert();
 
+    const [selectedTrack, setSelectedTrack] = React.useState<SpotifyApi.SavedTrackObject>();
     const [query, setQuery] = React.useState('');
 
     return (
@@ -45,12 +47,18 @@ const Search = () => {
     );
 
     async function download(result: YoutubeSearchResult) {
-        await youtubeClient.get(
-            result.id,
-            `${selectedTrack?.track.artists.map(x => x.name).join(', ')} - ${
-                selectedTrack?.track.name
-            }.mp3`
-        );
+        try {
+            await youtubeClient.get(
+                result.id,
+                `${selectedTrack?.track.artists.map(x => x.name).join(', ')} - ${
+                    selectedTrack?.track.name
+                }.mp3`
+            );
+
+            alert.success(`${selectedTrack?.track.name} downloaded`);
+        } catch (err) {
+            alert.error(err.message);
+        }
     }
 
     function loadSong(track: SpotifyApi.SavedTrackObject) {

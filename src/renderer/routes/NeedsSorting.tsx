@@ -16,6 +16,7 @@ import { Mp3File } from '../../contracts/Mp3File';
 import SongSelection from '../components/SongSelection';
 import { needsSortingPath, genresPath } from '../../constants';
 import { sortByGenre } from '../../utils/sortByGenre';
+import { useAlert } from '../components/abs/alert/useAlert';
 
 const useStyles = makeStyles(
     createStyles({
@@ -28,6 +29,8 @@ const useStyles = makeStyles(
 
 const NeedsSorting = () => {
     const classes = useStyles();
+    const alert = useAlert();
+
     const [isLoading, setLoading] = React.useState(false);
     const [selectedFile, setSelectedFile] = React.useState<Mp3File>();
 
@@ -60,9 +63,13 @@ const NeedsSorting = () => {
         </>
     );
 
-    function sortSongs() {
+    async function sortSongs() {
         setLoading(true);
-        sortByGenre(needsSortingPath, genresPath);
+        try {
+            await sortByGenre(needsSortingPath, genresPath);
+        } catch (err) {
+            alert.error(err.message);
+        }
         setLoading(false);
     }
 
