@@ -1,4 +1,4 @@
-export interface SearchResult {
+export interface BeatportSearchResult {
     beatportId: string;
     detailUrl: string;
     title?: string | null;

@@ -100,6 +100,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "^7.0.9",
     "@types/react-test-renderer": "^16.8.1",
+    "@types/spotify-web-api-node": "^4.0.1",
     "@types/webdriverio": "^4.8.7",
     "@types/webpack-env": "^1.13.3",
     "@typescript-eslint/eslint-plugin": "^2.4.0",
@@ -151,6 +152,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-redux": "^7.0.3",
-    "redux": "^4.0.1"
+    "redux": "^4.0.1",
+    "spotify-web-api-node": "^4.0.0"
   }
 }

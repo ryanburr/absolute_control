@@ -8,7 +8,7 @@ import { Mp3File } from '../../contracts/Mp3File';
 import SongSelection from '../components/SongSelection';
 import { needsDefinitionPath } from '../../constants';
 import { getFileName } from '../../utils/getFileName';
-import { SearchResult } from '../../contracts/SearchResults';
+import { BeatportSearchResult } from '../../contracts/BeatportSearchResults';
 import { beatportClient } from '../../clients/beatport';
 import { writeFile } from '../../utils/writeFile';
 import { moveToNeedsSort } from '../../utils/moveToNeedsSort';
@@ -55,7 +55,7 @@ const NeedsDefinition = () => {
         </>
     );
 
-    async function syncFile(result: SearchResult) {
+    async function syncFile(result: BeatportSearchResult) {
         if (selectedFile) {
             const detail = await beatportClient.get(result.detailUrl);
             await writeFile(selectedFile, detail);

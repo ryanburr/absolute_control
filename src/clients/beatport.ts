@@ -1,16 +1,16 @@
 import * as querystring from 'querystring';
-import { SearchResult } from '../contracts/SearchResults';
+import { BeatportSearchResult } from '../contracts/BeatportSearchResults';
 import { SongDetailResult } from '../contracts/SongDetailResult';
 
-const { BEATPORT_API } = process.env;
+const { ABSOLUTE_API } = process.env;
 
 export const beatportClient = {
     search: async (query: string) => {
         try {
             const response = await fetch(
-                `http://localhost:3000/search?${querystring.stringify({ query })}`
+                `${ABSOLUTE_API}/beatport/search?${querystring.stringify({ query })}`
             );
-            return (await response.json()) as SearchResult[];
+            return (await response.json()) as BeatportSearchResult[];
         } catch (err) {
             console.error(err);
             throw err;
@@ -18,7 +18,7 @@ export const beatportClient = {
     },
     get: async (url: string) => {
         try {
-            const response = await fetch(`http://localhost:3000${url}`);
+            const response = await fetch(`${ABSOLUTE_API}/beatport${url}`);
             return (await response.json()) as SongDetailResult;
         } catch (err) {
             console.error(err);

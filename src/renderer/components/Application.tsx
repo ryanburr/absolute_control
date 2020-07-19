@@ -9,6 +9,8 @@ import AbsTab from './abs/AbsTab';
 import AbsTabPanel from './abs/AbsTabPanel';
 import NeedsSorting from '../routes/NeedsSorting';
 import Genres from '../routes/Genres';
+import Search from '../routes/Search';
+import SpotifyProvider from '../../contexts/spotify-auth/SpotifyProvider';
 
 const absoluteTheme = createMuiTheme();
 
@@ -20,17 +22,23 @@ const Application = () => {
             <div>
                 <Typography variant="h1">Absolute Control!</Typography>
                 <AbsTabs value={tab} onChange={handleChange}>
+                    <AbsTab label="Search" />
                     <AbsTab label="Need to Define" />
                     <AbsTab label="Need to Sort" />
                     <AbsTab label="Genres" />
                 </AbsTabs>
                 <AbsTabPanel value={tab} index={0}>
-                    <NeedsDefinition />
+                    <SpotifyProvider>
+                        <Search />
+                    </SpotifyProvider>
                 </AbsTabPanel>
                 <AbsTabPanel value={tab} index={1}>
-                    <NeedsSorting />
+                    <NeedsDefinition />
                 </AbsTabPanel>
                 <AbsTabPanel value={tab} index={2}>
+                    <NeedsSorting />
+                </AbsTabPanel>
+                <AbsTabPanel value={tab} index={3}>
                     <Genres />
                 </AbsTabPanel>
             </div>
