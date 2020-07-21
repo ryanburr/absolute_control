@@ -53,4 +53,8 @@ const spotifySettings = new Settings({
     configName: 'spotify_auth'
 });
 
-export { spotifySettings };
+const pathSettings = new Settings({
+    configName: 'paths'
+});
+
+export { spotifySettings, pathSettings };
