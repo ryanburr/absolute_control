@@ -11,9 +11,13 @@ import {
     TextField
 } from '@material-ui/core';
 import { pathSettings } from '../../../utils/settings';
+import { rootDir } from '../../../constants';
 
 interface Settings {
     root_music_path?: string;
+    definition_folder?: string;
+    sort_folder?: string;
+    genre_folder?: string;
 }
 
 export interface SettingsDialogProps {
@@ -29,7 +33,10 @@ const SettingsDialog = (props: SettingsDialogProps) => {
     React.useEffect(() => {
         if (isOpen) {
             setSettings({
-                root_music_path: pathSettings.get<string | undefined>('root_music_path') ?? ''
+                root_music_path: rootDir() ?? '',
+                definition_folder: pathSettings.get<string | undefined>('definition_folder') ?? '',
+                sort_folder: pathSettings.get<string | undefined>('sort_folder') ?? '',
+                genre_folder: pathSettings.get<string | undefined>('genre_folder') ?? ''
             });
         }
     }, [isOpen]);
@@ -44,6 +51,26 @@ const SettingsDialog = (props: SettingsDialogProps) => {
                     label="Root Music Folder"
                     value={settings.root_music_path ?? ''}
                     onChange={updateField('root_music_path')}
+                    fullWidth
+                />
+                <Divider />
+                <Typography variant="h6">Sub-Folders</Typography>
+                <TextField
+                    label="Definition"
+                    value={settings.definition_folder ?? ''}
+                    onChange={updateField('definition_folder')}
+                    fullWidth
+                />
+                <TextField
+                    label="Sort"
+                    value={settings.sort_folder ?? ''}
+                    onChange={updateField('sort_folder')}
+                    fullWidth
+                />
+                <TextField
+                    label="Genres"
+                    value={settings.genre_folder ?? ''}
+                    onChange={updateField('genre_folder')}
                     fullWidth
                 />
             </DialogContent>
