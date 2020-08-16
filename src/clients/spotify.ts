@@ -18,15 +18,17 @@ export class SpotifyClient {
     constructor() {
         console.log('initializing spotify client');
 
-        this.spotifyApi = new SpotifyWebApi({
-            clientId: SPOTIFY_CLIENT_ID,
-            clientSecret: SPOTIFY_CLIENT_SECRET,
-            redirectUri: 'https://casaburr.com'
-        });
-
         const access_token = spotifySettings.get<string>('access_token');
         const expires_in = spotifySettings.get<number>('expires_in');
         const refresh_token = spotifySettings.get<string>('refresh_token');
+
+        this.spotifyApi = new SpotifyWebApi({
+            clientId: SPOTIFY_CLIENT_ID,
+            clientSecret: SPOTIFY_CLIENT_SECRET,
+            redirectUri: 'https://casaburr.com',
+            accessToken: access_token,
+            refreshToken: refresh_token
+        });
 
         this.accessToken = access_token;
 
@@ -149,6 +151,6 @@ export class SpotifyClient {
 
         // Set the access token on the API object to use it in later calls
         this.spotifyApi.setAccessToken(access_token);
-        // this.spotifyApi.setRefreshToken(refresh_token);
+        this.spotifyApi.setRefreshToken(refresh_token);
     }
 }
