@@ -22,6 +22,7 @@ import Search from '../routes/Search';
 import SpotifyProvider from '../../contexts/spotify-auth/SpotifyProvider';
 import AbsAlertProvider from './abs/alert/AbsAlertProvider';
 import SettingsDialog from './dialogs/SettingsDialog';
+import SearchSoundcloud from '../routes/SearchSoundcloud';
 
 const absoluteTheme = createMuiTheme({
     palette: {
@@ -58,7 +59,8 @@ const Application = () => {
                         </IconButton>
                     </Grid>
                     <AbsTabs value={tab} onChange={handleChange}>
-                        <AbsTab label="Search" />
+                        <AbsTab label="Spotify" />
+                        <AbsTab label="Soundcloud" />
                         <AbsTab label="Need to Define" />
                         <AbsTab label="Need to Sort" />
                         <AbsTab label="Genres" />
@@ -69,12 +71,15 @@ const Application = () => {
                         </SpotifyProvider>
                     </AbsTabPanel>
                     <AbsTabPanel value={tab} index={1}>
-                        <NeedsDefinition />
+                        <SearchSoundcloud />
                     </AbsTabPanel>
                     <AbsTabPanel value={tab} index={2}>
-                        <NeedsSorting />
+                        <NeedsDefinition />
                     </AbsTabPanel>
                     <AbsTabPanel value={tab} index={3}>
+                        <NeedsSorting />
+                    </AbsTabPanel>
+                    <AbsTabPanel value={tab} index={4}>
                         <Genres />
                     </AbsTabPanel>
                 </div>
