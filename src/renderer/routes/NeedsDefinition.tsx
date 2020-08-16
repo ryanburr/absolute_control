@@ -2,7 +2,16 @@ import * as path from 'path';
 import { hot } from 'react-hot-loader/root';
 import * as React from 'react';
 
-import { Typography, makeStyles, createStyles, Grid } from '@material-ui/core';
+import {
+    ListItem,
+    ListItemText,
+    ListItemSecondaryAction,
+    makeStyles,
+    createStyles,
+    Grid,
+    IconButton
+} from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 import FileList from '../components/FileList';
 import { Mp3File } from '../../contracts/Mp3File';
 import SongSelection from '../components/SongSelection';
@@ -13,6 +22,7 @@ import { beatportClient } from '../../clients/beatport';
 import { writeFile } from '../../utils/writeFile';
 import { moveToNeedsSort } from '../../utils/moveToNeedsSort';
 import { useAlert } from '../components/abs/alert/useAlert';
+import { moveToCannotFind } from '../../utils/moveToCannotFind';
 
 const useStyles = makeStyles(
     createStyles({
@@ -39,9 +49,27 @@ const NeedsDefinition = () => {
                 <Grid item xs={6}>
                     <FileList
                         title="Source Folder"
-                        path={needsDefinitionPath}
+                        path={needsDefinitionPath()}
                         selectedFile={selectedFile}
                         onSelect={loadSong}
+                        itemTemplate={({ file }) => (
+                            <ListItem
+                                button
+                                key={getFileName(file.file.path)}
+                                onClick={() => loadSong(file.file)}
+                                selected={file.file.path === selectedFile?.path}
+                            >
+                                <ListItemText
+                                    primary={getFileName(file.file.path)}
+                                    secondary={formatSeconds(file.file.mp3.format.duration)}
+                                />
+                                <ListItemSecondaryAction>
+                                    <IconButton onClick={moveFile(file.file)}>
+                                        <CloseIcon />
+                                    </IconButton>
+                                </ListItemSecondaryAction>
+                            </ListItem>
+                        )}
                     />
                 </Grid>
                 <Grid item xs={6} className={classes.relative}>
@@ -57,6 +85,32 @@ const NeedsDefinition = () => {
         </>
     );
 
+    function moveFile(file: Mp3File) {
+        return () => {
+            moveToCannotFind(file);
+            setSelectedFile(undefined);
+
+            alert.success(`${getFileName(file.path)} moved to "Cannot Find Data" folder`);
+        };
+    }
+
+    function pad(num: string | number, size: number) {
+        return `000${num}`.slice(size * -1);
+    }
+
+    function formatSeconds(totalSeconds: number | undefined) {
+        if (typeof totalSeconds === 'undefined') {
+            return '';
+        }
+
+        const time = parseFloat(totalSeconds.toFixed(3));
+
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = Math.floor(time - minutes * 60);
+
+        return `${minutes}:${pad(seconds, 2)}`;
+    }
+
     async function syncFile(result: BeatportSearchResult) {
         try {
             if (selectedFile) {
@@ -65,7 +119,7 @@ const NeedsDefinition = () => {
                 moveToNeedsSort(selectedFile);
                 setSelectedFile(undefined);
 
-                alert.success(`${selectedFile.mp3.common.title} synced with Beatport data`);
+                alert.success(`${result.title} synced with Beatport data`);
             }
         } catch (err) {
             alert.error(err.message);
