@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
+import { shell } from 'electron';
 import { hot } from 'react-hot-loader/root';
 import * as React from 'react';
 import {
@@ -8,15 +10,24 @@ import {
     IconButton,
     LinearProgress,
     Box,
-    Tooltip
+    Tooltip,
+    ListItemIcon
 } from '@material-ui/core';
 import RepeatIcon from '@material-ui/icons/Repeat';
+import CheckIcon from '@material-ui/icons/Check';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
 
 import AbsList from '../abs/AbsList';
 import AbsCard from '../abs/AbsCard';
 import AbsCardHeader from '../abs/AbsCardHeader';
 import { useSpotify } from '../../../contexts/spotify-auth/useSpotify';
+import { readFiles } from '../../../utils/readFiles';
+import { genresPath } from '../../../constants';
+
+interface LikedTrack {
+    track: SpotifyApi.SavedTrackObject;
+    isDownloaded: boolean;
+}
 
 interface SpotifyLikedSongsProps {
     selectedTrack: SpotifyApi.SavedTrackObject | undefined;
@@ -28,7 +39,7 @@ const SpotifyLikedSongs = (props: SpotifyLikedSongsProps) => {
     const { itemTemplate: ItemTemplate, selectedTrack, onSelect } = props;
 
     const [isLoading, setLoading] = React.useState(false);
-    const [likedTracks, setLikedTracks] = React.useState<SpotifyApi.SavedTrackObject[]>([]);
+    const [likedTracks, setLikedTracks] = React.useState<LikedTrack[]>([]);
 
     const spotify = useSpotify();
 
@@ -66,17 +77,31 @@ const SpotifyLikedSongs = (props: SpotifyLikedSongsProps) => {
                         !ItemTemplate ? (
                             <ListItem
                                 button
-                                key={likedTrack.track.id}
-                                onClick={() => onSelect(likedTrack)}
-                                selected={likedTrack.track.id === selectedTrack?.track.id}
+                                key={likedTrack.track.track.id}
+                                onClick={() => onSelect(likedTrack.track)}
+                                selected={likedTrack.track.track.id === selectedTrack?.track.id}
                             >
-                                <ListItemText>
-                                    {likedTrack.track.artists.map(x => x.name).join(', ')} -{' '}
-                                    {likedTrack.track.name}
+                                <ListItemText
+                                    secondary={formatMs(likedTrack.track.track.duration_ms)}
+                                >
+                                    <a href="#" onClick={() => openInSpotify(likedTrack)}>
+                                        {likedTrack.track.track.artists.map(x => x.name).join(', ')}{' '}
+                                        - {likedTrack.track.track.name}
+                                    </a>
                                 </ListItemText>
+                                {likedTrack.isDownloaded && (
+                                    <ListItemIcon>
+                                        <Tooltip title="Already in library">
+                                            <CheckIcon />
+                                        </Tooltip>
+                                    </ListItemIcon>
+                                )}
                             </ListItem>
                         ) : (
-                            <ItemTemplate key={likedTrack.track.id} track={likedTrack} />
+                            <ItemTemplate
+                                key={likedTrack.track.track.id}
+                                track={likedTrack.track}
+                            />
                         )
                     )}
                 </AbsList>
@@ -89,6 +114,27 @@ const SpotifyLikedSongs = (props: SpotifyLikedSongsProps) => {
             )}
         </AbsCard>
     );
+
+    function pad(num: string | number, size: number) {
+        return `000${num}`.slice(size * -1);
+    }
+
+    function formatMs(ms: number) {
+        if (typeof ms === 'undefined') {
+            return '';
+        }
+
+        const time = parseFloat(ms.toFixed(3));
+
+        const minutes = Math.floor(ms / 1000 / 60);
+        const seconds = Math.floor(time - minutes * 60);
+
+        return `${minutes}:${pad(seconds, 2)}`;
+    }
+
+    function openInSpotify(track: LikedTrack) {
+        shell.openExternal(track.track.track.external_urls.spotify);
+    }
 
     async function login() {
         setLoading(true);
@@ -103,12 +149,36 @@ const SpotifyLikedSongs = (props: SpotifyLikedSongsProps) => {
     async function refreshSongs() {
         setLoading(true);
         try {
-            const result = await spotify.getSavedTracks();
+            const response = await spotify.getSavedTracks();
+            const result = await checkDuplicates(response);
             setLikedTracks(result);
         } catch (err) {
             console.error(err);
         }
         setLoading(false);
+    }
+
+    async function checkDuplicates(
+        savedTracks: SpotifyApi.SavedTrackObject[]
+    ): Promise<LikedTrack[]> {
+        const songs = await readFiles(genresPath());
+
+        return savedTracks.map<LikedTrack>(x => ({
+            track: x,
+            isDownloaded: !!songs?.find(y => {
+                return (
+                    x.track.name
+                        .split(' - ')[0]
+                        .trim()
+                        .toLowerCase() ===
+                    y.mp3.common.title
+                        ?.split(' (')[0]
+                        .split('feat.')[0]
+                        .trim()
+                        .toLowerCase()
+                );
+            })
+        }));
     }
 };
 

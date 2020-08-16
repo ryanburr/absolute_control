@@ -1,7 +1,6 @@
 import { hot } from 'react-hot-loader/root';
 import * as React from 'react';
 import {
-    List,
     ListItem,
     ListItemText,
     Typography,
@@ -20,19 +19,25 @@ import AbsList from './abs/AbsList';
 import AbsCard from './abs/AbsCard';
 import AbsCardHeader from './abs/AbsCardHeader';
 
+interface FileCheck {
+    file: Mp3File;
+    isDup: boolean;
+}
+
 interface FileListProps {
     title?: string;
     path: string;
+    dupCheckPath?: string;
     selectedFile: Mp3File | undefined;
     onSelect: (file: Mp3File) => void;
-    itemTemplate?: (props: { file: Mp3File }) => JSX.Element;
+    itemTemplate?: (props: { file: FileCheck }) => JSX.Element;
 }
 
 const FileList = (props: FileListProps) => {
-    const { itemTemplate: ItemTemplate, selectedFile, path, onSelect, title } = props;
+    const { itemTemplate: ItemTemplate, selectedFile, path, dupCheckPath, onSelect, title } = props;
 
     const [isLoading, setLoading] = React.useState(false);
-    const [files, setFiles] = React.useState<Mp3File[]>([]);
+    const [files, setFiles] = React.useState<FileCheck[]>([]);
 
     React.useEffect(() => {
         if (!selectedFile) {
@@ -60,14 +65,17 @@ const FileList = (props: FileListProps) => {
                         !ItemTemplate ? (
                             <ListItem
                                 button
-                                key={getFileName(file.path)}
-                                onClick={() => onSelect(file)}
-                                selected={file.path === selectedFile?.path}
+                                key={getFileName(file.file.path)}
+                                onClick={() => onSelect(file.file)}
+                                selected={file.file.path === selectedFile?.path}
                             >
-                                <ListItemText>{getFileName(file.path)}</ListItemText>
+                                <ListItemText
+                                    primary={getFileName(file.file.path)}
+                                    secondary={formatSeconds(file.file.mp3.format.duration)}
+                                />
                             </ListItem>
                         ) : (
-                            <ItemTemplate key={file.path} file={file} />
+                            <ItemTemplate key={file.file.path} file={file} />
                         )
                     )}
                 </AbsList>
@@ -79,9 +87,40 @@ const FileList = (props: FileListProps) => {
         </AbsCard>
     );
 
+    function pad(num: string | number, size: number) {
+        return `000${num}`.slice(size * -1);
+    }
+
+    function formatSeconds(totalSeconds: number | undefined) {
+        if (typeof totalSeconds === 'undefined') {
+            return '';
+        }
+
+        const time = parseFloat(totalSeconds.toFixed(3));
+
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = Math.floor(time - minutes * 60);
+
+        return `${minutes}:${pad(seconds, 2)}`;
+    }
+
     async function refreshFiles() {
         setLoading(true);
-        setFiles(await readFiles(path));
+
+        const filesAtPath = await readFiles(path);
+        const dupCheckFiles = dupCheckPath ? await readFiles(dupCheckPath) : null;
+
+        setFiles(
+            filesAtPath.map(x => ({
+                file: x,
+                isDup:
+                    !!dupCheckFiles?.find(
+                        y =>
+                            x.mp3.common.title?.trim().toLowerCase() ===
+                            y.mp3.common.title?.trim().toLowerCase()
+                    ) ?? false
+            }))
+        );
         setLoading(false);
     }
 };

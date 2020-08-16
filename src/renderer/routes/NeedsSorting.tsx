@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as fs from 'fs';
 import { hot } from 'react-hot-loader/root';
 import * as React from 'react';
 
@@ -9,8 +10,15 @@ import {
     ListItem,
     ListItemText,
     Button,
-    LinearProgress
+    LinearProgress,
+    ListItemSecondaryAction,
+    IconButton,
+    ListItemIcon,
+    Tooltip,
+    Grid
 } from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
+import WarningIcon from '@material-ui/icons/Warning';
 import FileList from '../components/FileList';
 import { Mp3File } from '../../contracts/Mp3File';
 import SongSelection from '../components/SongSelection';
@@ -36,37 +44,70 @@ const NeedsSorting = () => {
 
     return (
         <>
-            <section className={classes.column}>
+            <Grid container component="section" direction="column">
                 {isLoading && <LinearProgress variant="indeterminate" />}
-                <Button variant="contained" onClick={sortSongs}>
-                    Sort into genres
-                </Button>
+                <Grid item xs={6}>
+                    <Button variant="contained" onClick={sortSongs}>
+                        Sort into genres
+                    </Button>
+                </Grid>
                 <FileList
                     title="Source Folder"
-                    path={needsSortingPath}
+                    path={needsSortingPath()}
+                    dupCheckPath={genresPath()}
                     selectedFile={selectedFile}
                     onSelect={loadSong}
                     itemTemplate={({ file }) => (
-                        <ListItem>
+                        <ListItem
+                            button
+                            onClick={() => setSelectedFile(file.file)}
+                            selected={file.file.path === selectedFile?.path}
+                        >
                             <ListItemText
-                                primary={`${file.mp3.common.artists} - ${file.mp3.common.title}`}
-                                secondary={`${file.mp3.common.genre} - ${
-                                    file.mp3.common.date
-                                        ? new Date(file.mp3.common.date).toLocaleDateString()
+                                primary={`${file.file.mp3.common.artists} - ${file.file.mp3.common.title}`}
+                                secondary={`${file.file.mp3.common.genre} - ${
+                                    file.file.mp3.common.date
+                                        ? new Date(file.file.mp3.common.date).toLocaleDateString()
                                         : ''
                                 }`}
                             />
+                            {file.isDup && (
+                                <ListItemIcon>
+                                    <Tooltip title="Duplicate found.">
+                                        <WarningIcon color="disabled" />
+                                    </Tooltip>
+                                </ListItemIcon>
+                            )}
+                            <ListItemSecondaryAction>
+                                <Tooltip title="Delete File">
+                                    <IconButton onClick={deleteFile(file.file)}>
+                                        <DeleteIcon color="action" />
+                                    </IconButton>
+                                </Tooltip>
+                            </ListItemSecondaryAction>
                         </ListItem>
                     )}
                 />
-            </section>
+            </Grid>
         </>
     );
+
+    function deleteFile(file: Mp3File) {
+        return async () => {
+            try {
+                fs.unlinkSync(file.path);
+                alert.success(`File deleted.`);
+                setSelectedFile(undefined);
+            } catch (err) {
+                alert.error(err.message);
+            }
+        };
+    }
 
     async function sortSongs() {
         setLoading(true);
         try {
-            await sortByGenre(needsSortingPath, genresPath);
+            await sortByGenre(needsSortingPath(), genresPath());
         } catch (err) {
             alert.error(err.message);
         }
