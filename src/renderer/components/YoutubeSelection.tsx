@@ -16,7 +16,7 @@ import {
     Tooltip,
     TextField
 } from '@material-ui/core';
-import SyncIcon from '@material-ui/icons/Sync';
+import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import SearchIcon from '@material-ui/icons/Search';
 
 import { youtubeClient } from '../../clients/youtube';
@@ -60,8 +60,8 @@ const YoutubeSelection = (props: YoutubeSelectionProps) => {
                     onKeyDown={handleEnter}
                     InputProps={{
                         endAdornment: (
-                            <IconButton color="secondary" onClick={search}>
-                                <SearchIcon />
+                            <IconButton onClick={search}>
+                                <SearchIcon color="action" />
                             </IconButton>
                         )
                     }}
@@ -88,7 +88,7 @@ const YoutubeSelection = (props: YoutubeSelectionProps) => {
                                         aria-label="sync"
                                         onClick={() => download(result)}
                                     >
-                                        <SyncIcon />
+                                        <CloudDownloadIcon color="action" />
                                     </IconButton>
                                 </Tooltip>
                             </ListItemSecondaryAction>

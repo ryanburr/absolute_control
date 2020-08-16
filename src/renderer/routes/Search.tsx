@@ -10,12 +10,9 @@ import { useAlert } from '../components/abs/alert/useAlert';
 
 const useStyles = makeStyles(
     createStyles({
-        sticky: {
-            position: 'sticky',
-            top: 10
-        },
-        relative: {
-            position: 'relative'
+        scroll: {
+            height: '90vh',
+            display: 'grid'
         }
     })
 );
@@ -29,13 +26,12 @@ const Search = () => {
 
     return (
         <>
-            <Grid container spacing={2}>
+            <Grid container spacing={1}>
                 <Grid item xs={6}>
                     <SpotifyLikedSongs selectedTrack={selectedTrack} onSelect={loadSong} />
                 </Grid>
-                <Grid item xs={6} className={classes.relative}>
+                <Grid item xs={6}>
                     <YoutubeSelection
-                        className={classes.sticky}
                         track={selectedTrack}
                         query={query}
                         onQueryChange={setQuery}

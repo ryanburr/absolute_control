@@ -94,7 +94,7 @@ const SongSelection = (props: SongSelectionProps) => {
                                         aria-label="sync"
                                         onClick={() => syncInfo(result)}
                                     >
-                                        <SyncIcon />
+                                        <SyncIcon color="action" />
                                     </IconButton>
                                 </Tooltip>
                             </ListItemSecondaryAction>

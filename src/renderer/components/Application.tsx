@@ -1,7 +1,15 @@
 import * as path from 'path';
 import { hot } from 'react-hot-loader/root';
 import * as React from 'react';
-import { Typography, ThemeProvider, createMuiTheme, Tabs, IconButton } from '@material-ui/core';
+import {
+    Typography,
+    ThemeProvider,
+    createMuiTheme,
+    Tabs,
+    IconButton,
+    Container,
+    Grid
+} from '@material-ui/core';
 import SettingsIcon from '@material-ui/icons/Settings';
 
 import NeedsDefinition from '../routes/NeedsDefinition';
@@ -15,7 +23,19 @@ import SpotifyProvider from '../../contexts/spotify-auth/SpotifyProvider';
 import AbsAlertProvider from './abs/alert/AbsAlertProvider';
 import SettingsDialog from './dialogs/SettingsDialog';
 
-const absoluteTheme = createMuiTheme();
+const absoluteTheme = createMuiTheme({
+    palette: {
+        primary: {
+            main: '#3E6680'
+        },
+        secondary: {
+            main: '#4BB3FD'
+        },
+        action: {
+            active: '#0496FF'
+        }
+    }
+});
 
 const Application = () => {
     const [tab, setTab] = React.useState(0);
@@ -25,12 +45,18 @@ const Application = () => {
         <ThemeProvider theme={absoluteTheme}>
             <AbsAlertProvider>
                 <div>
-                    <header>
-                        <Typography variant="h1">Absolute Control!</Typography>
+                    <Grid
+                        container
+                        spacing={1}
+                        component="header"
+                        justify="space-between"
+                        alignItems="flex-start"
+                    >
+                        <Typography variant="h2">Absolute Control</Typography>
                         <IconButton onClick={openSettings}>
                             <SettingsIcon />
                         </IconButton>
-                    </header>
+                    </Grid>
                     <AbsTabs value={tab} onChange={handleChange}>
                         <AbsTab label="Search" />
                         <AbsTab label="Need to Define" />
