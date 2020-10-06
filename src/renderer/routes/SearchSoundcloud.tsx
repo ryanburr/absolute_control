@@ -5,6 +5,7 @@ import { makeStyles, createStyles, Grid } from '@material-ui/core';
 import { useAlert } from '../components/abs/alert/useAlert';
 import SoundcloudSelection from '../components/SoundcloudSelection';
 import { SoundcloudSearchResult } from '../../contracts/SoundcloudSearchResult';
+import { soundcloudClient } from '../../clients/soundcloud';
 
 const useStyles = makeStyles(
     createStyles({
@@ -42,14 +43,9 @@ const SearchSoundcloud = () => {
 
     async function download(result: SoundcloudSearchResult) {
         try {
-            // await youtubeClient.get(
-            //     result.id,
-            //     `${selectedTrack?.track.artists.map(x => x.name).join(', ')} - ${
-            //         selectedTrack?.track.name
-            //     }.mp3`
-            // );
+            await soundcloudClient.get(result.href, `${result.title.trim()}.mp3`);
 
-            alert.success(`${selectedTrack?.track.name} downloaded`);
+            alert.success(`${result.title.trim()} downloaded`);
         } catch (err) {
             alert.error(err.message);
         }

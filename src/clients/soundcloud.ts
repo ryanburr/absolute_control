@@ -15,11 +15,12 @@ export const soundcloudClient = {
             throw err;
         }
     },
-    get: async (href: string) => {
+    get: async (uri: string, name: string) => {
         try {
             const response = await fetch(
                 `${ABSOLUTE_API}/soundcloud/download?${querystring.stringify({
-                    href
+                    uri,
+                    name
                 })}`
             );
             return (await response.json()) as any;
