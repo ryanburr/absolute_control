@@ -52,7 +52,7 @@
         }
     },
     "build": {
-        "productName": "ProductName",
+        "productName": "AbsoluteControl",
         "appId": "org.your.productname",
         "mac": {
             "category": "your.app.category.type"
